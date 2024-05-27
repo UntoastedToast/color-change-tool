@@ -1,49 +1,42 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Replace color</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Image Editor</title>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+    <script src="https://kit.fontawesome.com/c99cea887b.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Replace color</h1>
-        <div id="upload-section" class="section">
-            <p>Step 1: Upload an image</p>
-            <input type="file" id="upload" accept="image/*">
+        <div class="image-controls">
+            <a class="btn btn-default red-border pull-left active" id="resetBtn" title="Reset">
+                <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+            </a>
+            <a class="btn btn-default btn-effect active" id="uploadBtn">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                <span>Upload</span>
+            </a>
+            <a class="btn btn-default btn-effect" id="deSelectBtn">
+                <i class="fa-solid fa-crop-simple"></i>
+                <span>De-Select</span>
+            </a>
+            <a class="btn btn-default btn-effect" id="coloringBtn">
+                <i class="fa-solid fa-palette"></i>
+                <span>Coloring</span>
+            </a>
+            <a class="btn btn-default green-border pull-right" id="exportBtn" title="Save image">
+                <i class="fa-solid fa-file-export"></i> Export
+            </a>
         </div>
-        <div id="polygon-section" class="section" style="display:none;">
-            <p>Step 2: Select the area that should not be affected by the color change</p>
-            <canvas id="canvas"></canvas>
-            <button id="confirm-polygon" class="btn">Weiter</button>
-            <button id="clear-selection" class="btn btn-delete">Auswahl löschen</button>
-        </div>
-        <div id="color-section" class="section" style="display:none;">
-            <p>Step 3: Choose a color</p>
-            <div class="color-inputs">
-                <div>
-                    <label for="original-color">Original color</label>
-                    <input type="color" id="original-color">
-                </div>
-                <div>
-                    <label for="new-color">New color</label>
-                    <input type="color" id="new-color">
-                </div>
-                <div>
-                    <label for="color-tolerance">Tolerance</label>
-                    <input type="range" id="color-tolerance" min="0" max="100" value="50">
-                    <span id="tolerance-value">50</span>
-                </div>
-            </div>
-            <div class="buttons">
-                <button id="apply-color" class="btn">Change color</button>
-                <button id="back-to-polygon" class="btn btn-edit">Edit selection</button>
-                <button id="export-image" class="btn btn-export">Export image</button>
-            </div>
-            <canvas id="canvas-color"></canvas>
+        <div id="toolbar" class="toolbar"></div>
+        <div class="image-preview">
+            <input type="file" id="uploadInput" accept="image/*" style="display:none;">
+            <div id="imageContainer">Drag and drop your image here or click to browse</div>
+            <canvas id="imageCanvas" style="display:none;"></canvas>
         </div>
     </div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,97 @@
+body { background: #f4f4f4; }
+
+.container {
+  margin-top: 20px;
+  padding: 20px;
+  background: #eee;
+  border: 1px solid #ddd;
+}
+
+.image-controls {
+  text-align: center;
+  padding: 20px;
+  margin: -20px -20px 20px -20px;
+  background: #fcfcfc;
+  border-bottom: 1px solid #ddd;
+}
+
+.image-controls .btn {
+  min-width: 120px;
+  transition: all 0.15s ease-in-out;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.image-controls .btn-default {color: #888; }
+.btn-effect { border: 0; background: transparent; }
+
+.image-controls .btn-default:hover,
+.image-controls .btn-default:focus,
+.image-controls .btn-default:active:hover,
+.image-controls .btn-default:active:focus {
+  background: #f4f4f4;
+}
+
+.image-controls .btn-default.green-border {
+  border-color: #4cae4c;
+  color: #4cae4c;
+}
+
+.image-controls .btn-default.green-border:hover,
+.image-controls .btn-default.green-border:focus,
+.image-controls .btn-default.green-border:active:hover,
+.image-controls .btn-default.green-border:active:focus {
+  background: #4cae4c;
+  color: #fff;
+}
+
+.image-controls .btn-default.red-border {
+  border-color: #d43f3a;
+  color: #d43f3a;
+}
+
+.image-controls .btn-default.red-border:hover,
+.image-controls .btn-default.red-border:focus,
+.image-controls .btn-default.red-border:active:hover,
+.image-controls .btn-default.red-border:active:focus {
+  background: #d43f3a;
+  color: #fff;
+}
+
+.image-controls .btn-default.red-border,
+.image-controls .btn-default.green-border {
+  margin-top: 12px;
+}
+
+.image-controls .btn-default.red-border i,
+.image-controls .btn-default.green-border i {
+  font-size: initial;
+}
+
+.image-controls i {
+  font-size: 23px;
+  margin-bottom: 5px;
+}
+
+.image-controls span {
+  display:block;
+}
+
+.image-preview .thumbnail {
+  margin: 0 auto;
+}
+
+#imageContainer {
+  width: 100%;
+  height: 500px;
+  border: 2px dashed #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#imageCanvas {
+  max-width: 100%;
+  max-height: 500px;
+}
