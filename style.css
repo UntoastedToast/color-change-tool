@@ -7,14 +7,21 @@ body {
   padding: 20px;
   background: #eee;
   border: 1px solid #ddd;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px 0 0 0;
 }
 
 .image-controls {
   text-align: center;
   padding: 20px;
-  margin: -20px -20px 20px -20px;
+  margin: -20px -20px 0px -20px;
   background: #fcfcfc;
   border-bottom: 1px solid #ddd;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 .image-controls .btn {
@@ -102,18 +109,46 @@ body {
 
 .toolbar {
   text-align: center;
-  padding: 10px;
+  padding: 25px;
   background: #fcfcfc;
-  border-bottom: 1px solid #ddd;
-  margin-top: 10px;
-}
-
-.toolbar label {
-  margin-right: 10px;
+  border-bottom: 2px solid #ddd;
+  margin: 20px 0px 30px 0px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
 }
 
 .toolbar .btn {
-  margin: 0 10px; /* Add horizontal margin to space out the buttons */
+  margin-top: 0;
+}
+
+.color-picker-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.color-picker-pair {
+  text-align: left;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.color-picker-pair label,
+.color-picker-pair input {
+  display: block;
+  width: 100px;
+}
+
+.color-apply-button {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.color-apply-button .btn-effect {
+  width: calc(2 * 100px + 20px); /* Width of both color-picker-pairs plus the margin between them */
 }
 
 .toolbar .btn {
@@ -135,10 +170,15 @@ body {
 
 .upload-field {
   border: 2px dashed #ccc;
-  padding: 50px;
+  padding: 100px;
   text-align: center;
   margin: 20px auto;
   cursor: pointer;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
 }
 
 .upload-field.active {
@@ -169,4 +209,15 @@ body {
 .toolbar #apply-color:active:focus {
   background: #4cae4c;
   color: #fff;
+}
+
+#apply-selection,
+#clear-selection {
+  margin-top: 0;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.btn.active, .btn:active {
+  box-shadow: none !important;
 }

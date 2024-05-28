@@ -13,7 +13,7 @@
   <div class="container">
     <div class="image-controls">
       <a class="btn btn-default red-border pull-left" title="Reset to original" id="reset-btn">
-        <i class="fa fa-fw fa-undo"></i> Reset
+        <i class="fa fa-fw fa-undo"></i> Reload Page
       </a>
 
       <a class="btn btn-default btn-effect" id="upload-btn">
@@ -32,7 +32,7 @@
       </a>
 
       <a class="btn btn-default green-border pull-right disabled" title="Save image" id="save-btn">
-        <i class="fa fa-fw fa-check"></i> Save
+        <i class="fa-solid fa-file-arrow-down"></i> Export
       </a>
     </div>
 
@@ -54,15 +54,22 @@
     </div>
 
     <div class="toolbar" id="coloring-toolbar" style="display: none;">
-      <label for="source-color">Originalfarbe:</label>
-      <input type="color" id="source-color" value="#ff0000">
-      <label for="target-color">Neue Farbe:</label>
-      <input type="color" id="target-color" value="#00ff00">
-      <a class="btn btn-default btn-effect" id="apply-color">
-        <i class="fa-solid fa-paint-roller"></i> Apply Color
-      </a>
+      <div class="color-picker-container">
+        <div class="color-picker-pair">
+          <label for="source-color">Originalfarbe</label>
+          <input type="color" id="source-color" value="#ff0000">
+        </div>
+        <div class="color-picker-pair">
+          <label for="target-color">Neue Farbe</label>
+          <input type="color" id="target-color" value="#00ff00">
+        </div>
+      </div>
+      <div class="color-apply-button">
+        <a class="btn btn-default btn-effect" id="apply-color">
+          <i class="fa-solid fa-fill-drip"></i> Apply Color
+        </a>
+      </div>
     </div>
-    
 
     <canvas id="image-canvas" style="display:none;"></canvas>
   </div>

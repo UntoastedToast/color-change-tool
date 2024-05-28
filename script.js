@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let polygonComplete = false;
   let showPolygon = true;
   let originalFileName = '';
+  let draggingPointIndex = null;
 
   // Ensure the upload field is visible on page load
   uploadField.classList.add('active');
@@ -120,6 +121,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function activatePolygonSelection() {
     imageCanvas.addEventListener('click', addPoint);
+    imageCanvas.addEventListener('mousedown', onMouseDown);
+    imageCanvas.addEventListener('mousemove', onMouseMove);
+    imageCanvas.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('keydown', onKeyDown);
   }
 
   function addPoint(e) {
@@ -143,22 +148,50 @@ document.addEventListener('DOMContentLoaded', function () {
       if (points.length > 2) {
         ctx.lineTo(points[0].x, points[0].y);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Transparent white fill
+        ctx.fillStyle = 'rgba(212,63,58,0.15)'; // Transparent white fill
         ctx.fill();
       }
-      ctx.strokeStyle = 'red'; // Red line
+      ctx.strokeStyle = '#d43f3a'; // Red line
       ctx.lineWidth = 2;
       ctx.stroke();
       
       // Draw points
       points.forEach(point => {
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-        ctx.fillStyle = 'red';
+        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#d43f3a';
         ctx.fill();
-        ctx.strokeStyle = 'red';
+        ctx.strokeStyle = '#d43f3a';
         ctx.stroke();
       });
+    }
+  }
+
+  function onMouseDown(e) {
+    const rect = imageCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    draggingPointIndex = points.findIndex(point => Math.hypot(point.x - x, point.y - y) < 5);
+  }
+
+  function onMouseMove(e) {
+    if (draggingPointIndex !== null) {
+      const rect = imageCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      points[draggingPointIndex] = { x, y };
+      drawPolygon();
+    }
+  }
+
+  function onMouseUp() {
+    draggingPointIndex = null;
+  }
+
+  function onKeyDown(e) {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      points.pop();
+      drawPolygon();
     }
   }
 
@@ -223,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   saveBtn.addEventListener('click', function () {
     const link = document.createElement('a');
-    const hexColor = sourceColorInput.value;
+    const hexColor = targetColorInput.value;
     link.download = `${originalFileName}_${hexColor}.jpg`;
     link.href = imageCanvas.toDataURL('image/jpeg');
     link.click();
