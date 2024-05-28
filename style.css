@@ -41,7 +41,8 @@ body {
   background: #f4f4f4;
 }
 
-.image-controls .btn-default.green-border {
+.image-controls .btn-default.green-border,
+.toolbar .btn-default.green-border {
   border-color: #4cae4c;
   color: #4cae4c;
 }
@@ -49,12 +50,17 @@ body {
 .image-controls .btn-default.green-border:hover,
 .image-controls .btn-default.green-border:focus,
 .image-controls .btn-default.green-border:active:hover,
-.image-controls .btn-default.green-border:active:focus {
+.image-controls .btn-default.green-border:active:focus,
+.toolbar .btn-default.green-border:hover,
+.toolbar .btn-default.green-border:focus,
+.toolbar .btn-default.green-border:active:hover,
+.toolbar .btn-default.green-border:active:focus {
   background: #4cae4c;
   color: #fff;
 }
 
-.image-controls .btn-default.red-border {
+.image-controls .btn-default.red-border,
+.toolbar .btn-default.red-border {
   border-color: #d43f3a;
   color: #d43f3a;
 }
@@ -62,18 +68,26 @@ body {
 .image-controls .btn-default.red-border:hover,
 .image-controls .btn-default.red-border:focus,
 .image-controls .btn-default.red-border:active:hover,
-.image-controls .btn-default.red-border:active:focus {
+.image-controls .btn-default.red-border:active:focus,
+.toolbar .btn-default.red-border:hover,
+.toolbar .btn-default.red-border:focus,
+.toolbar .btn-default.red-border:active:hover,
+.toolbar .btn-default.red-border:active:focus {
   background: #d43f3a;
   color: #fff;
 }
 
 .image-controls .btn-default.red-border,
-.image-controls .btn-default.green-border {
+.image-controls .btn-default.green-border,
+.toolbar .btn-default.red-border,
+.toolbar .btn-default.green-border {
   margin-top: 12px;
 }
 
 .image-controls .btn-default.red-border i,
-.image-controls .btn-default.green-border i {
+.image-controls .btn-default.green-border i,
+.toolbar .btn-default.red-border i,
+.toolbar .btn-default.green-border i {
   font-size: initial;
 }
 
@@ -84,30 +98,6 @@ body {
 
 .image-controls span {
   display: block;
-}
-
-.image-preview .thumbnail {
-  margin: 0 auto;
-}
-
-.upload-area {
-  width: 100%;
-  height: 200px;
-  border: 2px dashed #ddd;
-  border-radius: 6px;
-  text-align: center;
-  padding: 30px;
-  margin-top: 20px;
-}
-
-.upload-area h4 {
-  color: #888;
-  font-weight: bold;
-  margin-top: 60px;
-}
-
-.upload-area.dragging {
-  border-color: #4cae4c;
 }
 
 .toolbar {
@@ -122,12 +112,61 @@ body {
   margin-right: 10px;
 }
 
+.toolbar .btn {
+  margin: 0 10px; /* Add horizontal margin to space out the buttons */
+}
+
+.toolbar .btn {
+  transition: all 0.15s ease-in-out; /* Apply the transition effect to toolbar buttons */
+}
+
 .btn.disabled {
   pointer-events: none;
   opacity: 0.6;
 }
 
-canvas {
+#image-canvas {
+  display: block;
+  margin: 20px auto;
   border: 1px solid #ddd;
+  max-width: 100%;
+  height: auto;
+}
+
+.upload-field {
+  border: 2px dashed #ccc;
+  padding: 50px;
+  text-align: center;
+  margin: 20px auto;
+  cursor: pointer;
+}
+
+.upload-field.active {
+  display: block;
+}
+
+.upload-field .file-input {
   display: none;
+}
+
+.upload-field .upload-message {
+  pointer-events: none;
+}
+
+.upload-field .upload-message .btn {
+  pointer-events: auto;
+}
+
+/* Style for Apply Color button */
+.toolbar #apply-color {
+  border-color: #4cae4c;
+  color: #4cae4c;
+}
+
+.toolbar #apply-color:hover,
+.toolbar #apply-color:focus,
+.toolbar #apply-color:active:hover,
+.toolbar #apply-color:active:focus {
+  background: #4cae4c;
+  color: #fff;
 }

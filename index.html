@@ -3,10 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>CodePen - Image editor</title>
+  <title>Image Editor</title>
   <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
   <link rel="stylesheet" href="./style.css">
-
   <script src="https://kit.fontawesome.com/c99cea887b.js" crossorigin="anonymous"></script>
 </head>
 
@@ -37,8 +36,21 @@
       </a>
     </div>
 
+    <div id="upload-field" class="upload-field active">
+      <input type="file" id="image-upload" class="file-input">
+      <div class="upload-message">
+        <p>Drag & Drop your image here or</p>
+        <button class="btn btn-default" id="browse-btn">Browse</button>
+      </div>
+    </div>
+
     <div class="toolbar" id="selection-toolbar" style="display: none;">
-      <button class="btn btn-default" id="apply-selection">Apply Selection</button>
+      <a class="btn btn-default green-border" id="apply-selection">
+        <i class="fa fa-fw fa-check"></i> Apply Selection
+      </a>
+      <a class="btn btn-default red-border" id="clear-selection">
+        <i class="fa-solid fa-eraser"></i> Clear Selection
+      </a>
     </div>
 
     <div class="toolbar" id="coloring-toolbar" style="display: none;">
@@ -46,16 +58,13 @@
       <input type="color" id="source-color" value="#ff0000">
       <label for="target-color">Neue Farbe:</label>
       <input type="color" id="target-color" value="#00ff00">
-      <button class="btn btn-default" id="apply-color">Apply Color</button>
+      <a class="btn btn-default btn-effect" id="apply-color">
+        <i class="fa-solid fa-paint-roller"></i> Apply Color
+      </a>
     </div>
+    
 
-    <div class="image-preview">
-      <div class="upload-area" id="uploadfile">
-        <h4>Drag and Drop file here<br/>Or<br/>Click to select file</h4>
-      </div>
-    </div>
-
-    <input type="file" id="file" style="display: none;">
+    <canvas id="image-canvas" style="display:none;"></canvas>
   </div>
 
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>

@@ -1,185 +1,225 @@
-$(document).ready(function () {
-    let isImageUploaded = false;
-    let polygonPoints = [];
+document.addEventListener('DOMContentLoaded', function () {
+  const uploadBtn = document.getElementById('upload-btn');
+  const imageUploadInput = document.getElementById('image-upload');
+  const deselectionBtn = document.getElementById('deselection-btn');
+  const coloringBtn = document.getElementById('coloring-btn');
+  const saveBtn = document.getElementById('save-btn');
+  const imageCanvas = document.getElementById('image-canvas');
+  const uploadField = document.getElementById('upload-field');
+  const browseBtn = document.getElementById('browse-btn');
+  const ctx = imageCanvas.getContext('2d');
+  const applySelectionBtn = document.getElementById('apply-selection');
+  const applyColorBtn = document.getElementById('apply-color');
+  const sourceColorInput = document.getElementById('source-color');
+  const targetColorInput = document.getElementById('target-color');
   
-    $(".upload-area").on('dragover', function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      $(this).addClass('dragging');
-    });
-  
-    $(".upload-area").on('dragleave', function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      $(this).removeClass('dragging');
-    });
-  
-    $(".upload-area").on('drop', function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      $(this).removeClass('dragging');
-      var file = e.originalEvent.dataTransfer.files;
-      showFile(file[0]);
-    });
-  
-    $(".upload-area").click(function () {
-      $("#file").click();
-    });
-  
-    $("#file").change(function () {
-      var file = this.files[0];
-      showFile(file);
-    });
-  
-    function showFile(file) {
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        var img = $('<img>').attr('src', e.target.result).addClass('img-responsive thumbnail');
-        $(".image-preview").html(img);
-        isImageUploaded = true;
-        enableButtons();
-        goToStep('deselection');
-        setupCanvas(img[0]);
-      }
+  let image = new Image();
+  let points = [];
+  let polygonComplete = false;
+  let showPolygon = true;
+  let originalFileName = '';
+
+  // Ensure the upload field is visible on page load
+  uploadField.classList.add('active');
+
+  uploadBtn.addEventListener('click', function () {
+    resetEditor();
+    showUploadField();
+  });
+
+  function showUploadField() {
+    uploadField.classList.add('active');
+    uploadField.style.display = 'block'; // Ensure it's visible
+    imageCanvas.style.display = 'none';
+    document.getElementById('selection-toolbar').style.display = 'none';
+    document.getElementById('coloring-toolbar').style.display = 'none';
+  }
+
+  function resetEditor() {
+    image.src = '';
+    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+    deselectionBtn.classList.add('disabled');
+    coloringBtn.classList.add('disabled');
+    saveBtn.classList.add('disabled');
+    points = [];
+    polygonComplete = false;
+    showPolygon = true;
+    originalFileName = '';
+  }
+
+  browseBtn.addEventListener('click', function (event) {
+    event.stopPropagation();
+    imageUploadInput.click();
+  });
+
+  imageUploadInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      originalFileName = file.name.split('.')[0]; // Get the original file name without extension
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        image.src = event.target.result;
+        image.onload = function () {
+          resizeCanvas();
+          ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+          enableEditingButtons();
+          goToDeselectionStep();
+          uploadField.classList.remove('active'); // Hide the upload field
+          uploadField.style.display = 'none'; // Ensure it's not visible
+          imageCanvas.style.display = 'block';
+        };
+      };
       reader.readAsDataURL(file);
     }
-  
-    function enableButtons() {
-      $("#deselection-btn, #coloring-btn, #save-btn").removeClass('disabled');
-    }
-  
-    function setupCanvas(img) {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.id = 'canvas';
-      $('.image-preview').append(canvas);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-      $(canvas).show();
-  
-      canvas.addEventListener('click', function (e) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        polygonPoints.push({ x, y });
-        drawPolygon(ctx);
-      });
-    }
-  
-    function drawPolygon(ctx) {
-      if (polygonPoints.length === 0) return;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      const img = $('.image-preview img')[0];
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-  
-      ctx.beginPath();
-      ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
-      for (let i = 1; i < polygonPoints.length; i++) {
-        ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+  });
+
+  window.addEventListener('resize', resizeCanvas);
+
+  function resizeCanvas() {
+    const container = document.querySelector('.container');
+    imageCanvas.width = container.clientWidth - 40; // padding adjustments
+    imageCanvas.height = imageCanvas.width * (image.height / image.width);
+    if (image.src) {
+      ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+      if (polygonComplete && showPolygon) {
+        drawPolygon();
       }
-      ctx.closePath();
-      ctx.strokeStyle = 'red';
+    }
+  }
+
+  function enableEditingButtons() {
+    deselectionBtn.classList.remove('disabled');
+    coloringBtn.classList.remove('disabled');
+    saveBtn.classList.remove('disabled');
+  }
+
+  function goToDeselectionStep() {
+    document.getElementById('selection-toolbar').style.display = 'block';
+    document.getElementById('coloring-toolbar').style.display = 'none';
+    deselectionBtn.classList.add('active');
+    coloringBtn.classList.remove('active');
+    activatePolygonSelection();
+    showPolygon = true;
+  }
+
+  function goToColoringStep() {
+    document.getElementById('selection-toolbar').style.display = 'none';
+    document.getElementById('coloring-toolbar').style.display = 'block';
+    deselectionBtn.classList.remove('active');
+    coloringBtn.classList.add('active');
+    showPolygon = false;
+    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+  }
+
+  function activatePolygonSelection() {
+    imageCanvas.addEventListener('click', addPoint);
+  }
+
+  function addPoint(e) {
+    if (polygonComplete) return;
+    const rect = imageCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    points.push({ x, y });
+    drawPolygon();
+  }
+
+  function drawPolygon() {
+    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+    if (points.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      points.forEach(point => {
+        ctx.lineTo(point.x, point.y);
+      });
+      if (points.length > 2) {
+        ctx.lineTo(points[0].x, points[0].y);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Transparent white fill
+        ctx.fill();
+      }
+      ctx.strokeStyle = 'red'; // Red line
       ctx.lineWidth = 2;
       ctx.stroke();
+      
+      // Draw points
+      points.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+        ctx.strokeStyle = 'red';
+        ctx.stroke();
+      });
     }
-  
-    $("#upload-btn").click(function () {
-      goToStep('upload');
-    });
-  
-    $("#deselection-btn").click(function () {
-      if (isImageUploaded) {
-        goToStep('deselection');
-      }
-    });
-  
-    $("#coloring-btn").click(function () {
-      if (isImageUploaded) {
-        goToStep('coloring');
-      }
-    });
-  
-    $("#apply-selection").click(function () {
-      goToStep('coloring');
-    });
-  
-    $("#apply-color").click(function () {
-      applyColorChange();
-    });
-  
-    function applyColorChange() {
-      const img = $('.image-preview img')[0];
-      if (!img) return;
-  
-      const sourceColor = hexToRgb($("#source-color").val());
-      const targetColor = hexToRgb($("#target-color").val());
-  
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-  
-      for (let i = 0; i < data.length; i += 4) {
-        const x = (i / 4) % canvas.width;
-        const y = Math.floor((i / 4) / canvas.width);
-        if (!isPointInPolygon({ x, y }, polygonPoints) && isColorMatch(data, i, sourceColor)) {
-          data[i] = targetColor.r;
-          data[i + 1] = targetColor.g;
-          data[i + 2] = targetColor.b;
-        }
-      }
-  
-      ctx.putImageData(imageData, 0, 0);
-      const newImgUrl = canvas.toDataURL();
-      $('.image-preview').html(`<img src="${newImgUrl}" class="img-responsive thumbnail">`);
+  }
+
+  applySelectionBtn.addEventListener('click', function () {
+    if (points.length > 2) {
+      polygonComplete = true;
+      goToColoringStep();
     }
-  
-    function isPointInPolygon(point, polygon) {
-      let isInside = false;
-      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-        const xi = polygon[i].x, yi = polygon[i].y;
-        const xj = polygon[j].x, yj = polygon[j].y;
-  
-        const intersect = ((yi > point.y) !== (yj > point.y)) &&
-          (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
-        if (intersect) isInside = !isInside;
-      }
-      return isInside;
-    }
-  
-    function isColorMatch(data, index, color) {
-      const tolerance = 50;
-      const r = data[index];
-      const g = data[index + 1];
-      const b = data[index + 2];
-      return Math.abs(r - color.r) <= tolerance && Math.abs(g - color.g) <= tolerance && Math.abs(b - color.b) <= tolerance;
-    }
-  
-    function hexToRgb(hex) {
-      const bigint = parseInt(hex.slice(1), 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >> 8) & 255;
-      const b = bigint & 255;
-      return { r, g, b };
-    }
-  
-    function goToStep(step) {
-      $(".toolbar").hide();
-      $(".image-controls .btn-effect").removeClass('active');
-  
-      if (step === 'upload') {
-        $("#upload-btn").addClass('active');
-      } else if (step === 'deselection') {
-        $("#deselection-btn").addClass('active');
-        $("#selection-toolbar").show();
-      } else if (step === 'coloring') {
-        $("#coloring-btn").addClass('active');
-        $("#coloring-toolbar").show();
-      }
-    }
-  
-    // Set the initial active button to "Upload"
-    $("#upload-btn").addClass('active');
   });
-  
+
+  applyColorBtn.addEventListener('click', function () {
+    const sourceColor = hexToRgb(sourceColorInput.value);
+    const targetColor = hexToRgb(targetColorInput.value);
+    applyColorChange(sourceColor, targetColor);
+  });
+
+  function applyColorChange(sourceColor, targetColor) {
+    const imageData = ctx.getImageData(0, 0, imageCanvas.width, imageCanvas.height);
+    const data = imageData.data;
+    const tolerance = 50;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = (i / 4) % imageCanvas.width;
+      const y = Math.floor(i / 4 / imageCanvas.width);
+      if (isWithinPolygon(x, y)) continue;
+
+      if (colorMatch(data[i], data[i + 1], data[i + 2], sourceColor, tolerance)) {
+        data[i] = targetColor.r;
+        data[i + 1] = targetColor.g;
+        data[i + 2] = targetColor.b;
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  function isWithinPolygon(x, y) {
+    let inside = false;
+    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+      const xi = points[i].x, yi = points[i].y;
+      const xj = points[j].x, yj = points[j].y;
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = (bigint & 255);
+    return { r, g, b };
+  }
+
+  function colorMatch(r, g, b, color, tolerance) {
+    return Math.abs(r - color.r) <= tolerance &&
+           Math.abs(g - color.g) <= tolerance &&
+           Math.abs(b - color.b) <= tolerance;
+  }
+
+  saveBtn.addEventListener('click', function () {
+    const link = document.createElement('a');
+    const hexColor = sourceColorInput.value;
+    link.download = `${originalFileName}_${hexColor}.jpg`;
+    link.href = imageCanvas.toDataURL('image/jpeg');
+    link.click();
+  });
+});
