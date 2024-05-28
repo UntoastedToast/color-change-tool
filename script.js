@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const applyColorBtn = document.getElementById('apply-color');
   const sourceColorInput = document.getElementById('source-color');
   const targetColorInput = document.getElementById('target-color');
+  const clearSelectionBtn = document.getElementById('clear-selection');
+  const resetBtn = document.getElementById('reset-btn');
   
   let image = new Image();
   let points = [];
@@ -25,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
   uploadBtn.addEventListener('click', function () {
     resetEditor();
     showUploadField();
+  });
+
+  resetBtn.addEventListener('click', function () {
+    window.location.reload(); // Reload the page
   });
 
   function showUploadField() {
@@ -222,4 +228,15 @@ document.addEventListener('DOMContentLoaded', function () {
     link.href = imageCanvas.toDataURL('image/jpeg');
     link.click();
   });
+
+  clearSelectionBtn.addEventListener('click', function () {
+    clearPolygonSelection();
+  });
+
+  function clearPolygonSelection() {
+    points = [];
+    polygonComplete = false;
+    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
+  }
 });
