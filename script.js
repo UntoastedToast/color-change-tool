@@ -1,275 +1,296 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const uploadBtn = document.getElementById('upload-btn');
-  const imageUploadInput = document.getElementById('image-upload');
-  const deselectionBtn = document.getElementById('deselection-btn');
-  const coloringBtn = document.getElementById('coloring-btn');
-  const saveBtn = document.getElementById('save-btn');
-  const imageCanvas = document.getElementById('image-canvas');
-  const uploadField = document.getElementById('upload-field');
-  const browseBtn = document.getElementById('browse-btn');
-  const ctx = imageCanvas.getContext('2d');
-  const applySelectionBtn = document.getElementById('apply-selection');
-  const applyColorBtn = document.getElementById('apply-color');
-  const sourceColorInput = document.getElementById('source-color');
-  const targetColorInput = document.getElementById('target-color');
-  const clearSelectionBtn = document.getElementById('clear-selection');
-  const resetBtn = document.getElementById('reset-btn');
-  
-  let image = new Image();
-  let points = [];
-  let polygonComplete = false;
-  let showPolygon = true;
-  let originalFileName = '';
-  let draggingPointIndex = null;
+document.addEventListener('DOMContentLoaded', () => {
+  const elements = {
+    uploadBtn: document.getElementById('upload-btn'),
+    imageUploadInput: document.getElementById('image-upload'),
+    deselectionBtn: document.getElementById('deselection-btn'),
+    coloringBtn: document.getElementById('coloring-btn'),
+    saveBtn: document.getElementById('save-btn'),
+    imageCanvas: document.getElementById('image-canvas'),
+    uploadField: document.getElementById('upload-field'),
+    browseBtn: document.getElementById('browse-btn'),
+    ctx: document.getElementById('image-canvas').getContext('2d'),
+    applySelectionBtn: document.getElementById('apply-selection'),
+    applyColorBtn: document.getElementById('apply-color'),
+    sourceColorInput: document.getElementById('source-color'),
+    targetColorInput: document.getElementById('target-color'),
+    clearSelectionBtn: document.getElementById('clear-selection'),
+    resetBtn: document.getElementById('reset-btn'),
+    overlay: document.getElementById('overlay'),
+    confirmBtn: document.getElementById('confirm-btn'),
+    cancelBtn: document.getElementById('cancel-btn'),
+  };
 
-  // Ensure the upload field is visible on page load
-  uploadField.classList.add('active');
+  let state = {
+    image: new Image(),
+    points: [],
+    polygonComplete: false,
+    originalFileName: '',
+    originalImageData: null,
+    resetAction: null,
+    draggingPointIndex: null,
+  };
 
-  uploadBtn.addEventListener('click', function () {
-    resetEditor();
+  const toggleButtons = (disabled, ...buttons) =>
+    buttons.forEach(btn => btn.classList.toggle('disabled', disabled));
+
+  const switchToolbar = mode => {
+    ['selection', 'coloring'].forEach(toolbar =>
+      document.getElementById(`${toolbar}-toolbar`).style.display = mode === toolbar ? 'block' : 'none'
+    );
+    Object.keys(elements).forEach(key => elements[key].classList && elements[key].classList.remove('active'));
+    if (elements[`${mode}Btn`]) elements[`${mode}Btn`].classList.add('active');
+    if (mode === 'selection') elements.deselectionBtn.classList.add('active'); // Ensure De-Selection button is active
+  };
+
+  const resetEditor = () => {
+    state.points = [];
+    state.polygonComplete = false;
+    state.originalFileName = '';
+    state.originalImageData = null;
+    elements.ctx.clearRect(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
     showUploadField();
-  });
+    toggleButtons(true, elements.deselectionBtn, elements.coloringBtn, elements.saveBtn);
+    switchToolbar('upload');
+  };
 
-  resetBtn.addEventListener('click', function () {
-    window.location.reload(); // Reload the page
-  });
+  const showUploadField = () => {
+    elements.uploadField.classList.add('active');
+    elements.uploadField.style.display = 'block';
+    elements.imageCanvas.style.display = 'none';
+    elements.imageUploadInput.value = '';
+  };
 
-  function showUploadField() {
-    uploadField.classList.add('active');
-    uploadField.style.display = 'block'; // Ensure it's visible
-    imageCanvas.style.display = 'none';
-    document.getElementById('selection-toolbar').style.display = 'none';
-    document.getElementById('coloring-toolbar').style.display = 'none';
-  }
-
-  function resetEditor() {
-    image.src = '';
-    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    deselectionBtn.classList.add('disabled');
-    coloringBtn.classList.add('disabled');
-    saveBtn.classList.add('disabled');
-    points = [];
-    polygonComplete = false;
-    showPolygon = true;
-    originalFileName = '';
-  }
-
-  browseBtn.addEventListener('click', function (event) {
-    event.stopPropagation();
-    imageUploadInput.click();
-  });
-
-  imageUploadInput.addEventListener('change', function (e) {
+  const handleImageUpload = e => {
     const file = e.target.files[0];
     if (file) {
-      originalFileName = file.name.split('.')[0]; // Get the original file name without extension
+      state.originalFileName = file.name.split('.')[0];
       const reader = new FileReader();
-      reader.onload = function (event) {
-        image.src = event.target.result;
-        image.onload = function () {
+      reader.onload = event => {
+        state.image.src = event.target.result;
+        state.image.onload = () => {
           resizeCanvas();
-          ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
-          enableEditingButtons();
-          goToDeselectionStep();
-          uploadField.classList.remove('active'); // Hide the upload field
-          uploadField.style.display = 'none'; // Ensure it's not visible
-          imageCanvas.style.display = 'block';
+          elements.ctx.drawImage(state.image, 0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+          state.originalImageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+          toggleButtons(false, elements.deselectionBtn, elements.coloringBtn, elements.saveBtn);
+          switchToolbar('selection');
+          elements.uploadField.classList.remove('active');
+          elements.uploadField.style.display = 'none';
+          elements.imageCanvas.style.display = 'block';
         };
       };
       reader.readAsDataURL(file);
     }
-  });
+  };
 
-  window.addEventListener('resize', resizeCanvas);
-
-  function resizeCanvas() {
+  const resizeCanvas = () => {
     const container = document.querySelector('.container');
-    imageCanvas.width = container.clientWidth - 40; // padding adjustments
-    imageCanvas.height = imageCanvas.width * (image.height / image.width);
-    if (image.src) {
-      ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
-      if (polygonComplete && showPolygon) {
-        drawPolygon();
-      }
+    elements.imageCanvas.width = container.clientWidth - 40;
+    elements.imageCanvas.height = elements.imageCanvas.width * (state.image.height / state.image.width);
+    if (state.image.src) {
+      elements.ctx.drawImage(state.image, 0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+      if (state.polygonComplete) drawPolygon();
     }
-  }
+  };
 
-  function enableEditingButtons() {
-    deselectionBtn.classList.remove('disabled');
-    coloringBtn.classList.remove('disabled');
-    saveBtn.classList.remove('disabled');
-  }
-
-  function goToDeselectionStep() {
-    document.getElementById('selection-toolbar').style.display = 'block';
-    document.getElementById('coloring-toolbar').style.display = 'none';
-    deselectionBtn.classList.add('active');
-    coloringBtn.classList.remove('active');
-    activatePolygonSelection();
-    showPolygon = true;
-  }
-
-  function goToColoringStep() {
-    document.getElementById('selection-toolbar').style.display = 'none';
-    document.getElementById('coloring-toolbar').style.display = 'block';
-    deselectionBtn.classList.remove('active');
-    coloringBtn.classList.add('active');
-    showPolygon = false;
-    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
-  }
-
-  function activatePolygonSelection() {
-    imageCanvas.addEventListener('click', addPoint);
-    imageCanvas.addEventListener('mousedown', onMouseDown);
-    imageCanvas.addEventListener('mousemove', onMouseMove);
-    imageCanvas.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('keydown', onKeyDown);
-  }
-
-  function addPoint(e) {
-    if (polygonComplete) return;
-    const rect = imageCanvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    points.push({ x, y });
-    drawPolygon();
-  }
-
-  function drawPolygon() {
-    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
-    if (points.length > 0) {
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      points.forEach(point => {
-        ctx.lineTo(point.x, point.y);
-      });
-      if (points.length > 2) {
-        ctx.lineTo(points[0].x, points[0].y);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(212,63,58,0.15)'; // Transparent white fill
-        ctx.fill();
-      }
-      ctx.strokeStyle = '#d43f3a'; // Red line
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      
-      // Draw points
-      points.forEach(point => {
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = '#d43f3a';
-        ctx.fill();
-        ctx.strokeStyle = '#d43f3a';
-        ctx.stroke();
-      });
-    }
-  }
-
-  function onMouseDown(e) {
-    const rect = imageCanvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    draggingPointIndex = points.findIndex(point => Math.hypot(point.x - x, point.y - y) < 5);
-  }
-
-  function onMouseMove(e) {
-    if (draggingPointIndex !== null) {
-      const rect = imageCanvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      points[draggingPointIndex] = { x, y };
-      drawPolygon();
-    }
-  }
-
-  function onMouseUp() {
-    draggingPointIndex = null;
-  }
-
-  function onKeyDown(e) {
-    if (e.key === 'Backspace' || e.key === 'Delete') {
-      points.pop();
-      drawPolygon();
-    }
-  }
-
-  applySelectionBtn.addEventListener('click', function () {
-    if (points.length > 2) {
-      polygonComplete = true;
-      goToColoringStep();
-    }
-  });
-
-  applyColorBtn.addEventListener('click', function () {
-    const sourceColor = hexToRgb(sourceColorInput.value);
-    const targetColor = hexToRgb(targetColorInput.value);
-    applyColorChange(sourceColor, targetColor);
-  });
-
-  function applyColorChange(sourceColor, targetColor) {
-    const imageData = ctx.getImageData(0, 0, imageCanvas.width, imageCanvas.height);
-    const data = imageData.data;
+  const applyColorChange = () => {
+    elements.ctx.putImageData(state.originalImageData, 0, 0);
+    const imageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+    const sourceColor = hexToRgb(elements.sourceColorInput.value);
+    const targetColor = hexToRgb(elements.targetColorInput.value);
     const tolerance = 50;
+    const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      const x = (i / 4) % imageCanvas.width;
-      const y = Math.floor(i / 4 / imageCanvas.width);
-      if (isWithinPolygon(x, y)) continue;
-
-      if (colorMatch(data[i], data[i + 1], data[i + 2], sourceColor, tolerance)) {
+      const x = (i / 4) % elements.imageCanvas.width;
+      const y = Math.floor(i / 4 / elements.imageCanvas.width);
+      if (!isWithinPolygon(x, y) && colorMatch(data[i], data[i + 1], data[i + 2], sourceColor, tolerance)) {
         data[i] = targetColor.r;
         data[i + 1] = targetColor.g;
         data[i + 2] = targetColor.b;
       }
     }
+    elements.ctx.putImageData(imageData, 0, 0);
+  };
 
-    ctx.putImageData(imageData, 0, 0);
-  }
+  const detectDominantColor = () => {
+    const imageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+    const data = imageData.data;
+    const colorCounts = new Map();
+    const excludeColors = new Set(['#808080', '#FFFFFF']);
+    const step = Math.max(1, Math.floor((elements.imageCanvas.width * elements.imageCanvas.height) / 10000));
 
-  function isWithinPolygon(x, y) {
-    let inside = false;
-    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-      const xi = points[i].x, yi = points[i].y;
-      const xj = points[j].x, yj = points[j].y;
-      const intersect = ((yi > y) !== (yj > y)) &&
-        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-      if (intersect) inside = !inside;
+    for (let i = 0; i < data.length; i += 4 * step) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const hex = rgbToHex(r, g, b);
+
+      if (!excludeColors.has(hex) && !isGrayOrWhite(r, g, b)) {
+        colorCounts.set(hex, (colorCounts.get(hex) || 0) + 1);
+      }
     }
-    return inside;
-  }
 
-  function hexToRgb(hex) {
+    let dominantColor = '';
+    let maxCount = 0;
+
+    for (const [color, count] of colorCounts) {
+      if (count > maxCount) {
+        maxCount = count;
+        dominantColor = color;
+      }
+    }
+
+    elements.sourceColorInput.value = dominantColor;
+  };
+
+  const drawPolygon = () => {
+    elements.ctx.putImageData(state.originalImageData, 0, 0);
+    if (state.points.length) {
+      elements.ctx.beginPath();
+      elements.ctx.moveTo(state.points[0].x, state.points[0].y);
+      state.points.forEach(p => elements.ctx.lineTo(p.x, p.y));
+      if (state.points.length > 2) {
+        elements.ctx.closePath();
+        elements.ctx.fillStyle = 'rgba(212,63,58,0.15)';
+        elements.ctx.fill();
+      }
+      elements.ctx.strokeStyle = '#d43f3a';
+      elements.ctx.lineWidth = 2;
+      elements.ctx.stroke();
+      state.points.forEach(p => {
+        elements.ctx.beginPath();
+        elements.ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+        elements.ctx.fillStyle = '#d43f3a';
+        elements.ctx.fill();
+      });
+    }
+  };
+
+  const hexToRgb = hex => {
     const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = (bigint & 255);
-    return { r, g, b };
-  }
+    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+  };
 
-  function colorMatch(r, g, b, color, tolerance) {
-    return Math.abs(r - color.r) <= tolerance &&
-           Math.abs(g - color.g) <= tolerance &&
-           Math.abs(b - color.b) <= tolerance;
-  }
+  const rgbToHex = (r, g, b) => `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 
-  saveBtn.addEventListener('click', function () {
+  const isGrayOrWhite = (r, g, b) => (Math.abs(r - g) <= 10 && Math.abs(g - b) <= 10 && Math.abs(b - r) <= 10) || (r > 240 && g > 240 && b > 240);
+
+  const isWithinPolygon = (x, y) => state.points.reduce((inside, point, i, arr) => {
+    const j = (i + 1) % arr.length;
+    const { x: x1, y: y1 } = point;
+    const { x: x2, y: y2 } = arr[j];
+    const intersect = ((y1 > y) !== (y2 > y)) && (x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1);
+    return intersect ? !inside : inside;
+  }, false);
+
+  const colorMatch = (r, g, b, color, tolerance) => Math.abs(r - color.r) <= tolerance && Math.abs(g - color.g) <= tolerance && Math.abs(b - color.b) <= tolerance;
+
+  const showOverlay = () => elements.overlay.style.display = 'flex';
+  const hideOverlay = () => elements.overlay.style.display = 'none';
+
+  elements.resetBtn.addEventListener('click', () => {
+    state.resetAction = 'reload';
+    showOverlay();
+  });
+
+  elements.browseBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    elements.imageUploadInput.click();
+  });
+
+  elements.imageUploadInput.addEventListener('change', handleImageUpload);
+
+  elements.applySelectionBtn.addEventListener('click', () => {
+    if (state.points.length > 2) {
+      state.polygonComplete = true;
+      switchToolbar('coloring');
+      detectDominantColor();
+    }
+  });
+
+  elements.applyColorBtn.addEventListener('click', applyColorChange);
+
+  elements.saveBtn.addEventListener('click', () => {
     const link = document.createElement('a');
-    const hexColor = targetColorInput.value;
-    link.download = `${originalFileName}_${hexColor}.jpg`;
-    link.href = imageCanvas.toDataURL('image/jpeg');
+    link.download = `${state.originalFileName}_${elements.targetColorInput.value}.jpg`;
+    link.href = elements.imageCanvas.toDataURL('image/jpeg');
     link.click();
   });
 
-  clearSelectionBtn.addEventListener('click', function () {
-    clearPolygonSelection();
+  elements.clearSelectionBtn.addEventListener('click', () => {
+    state.points = [];
+    state.polygonComplete = false;
+    elements.ctx.putImageData(state.originalImageData, 0, 0);
   });
 
-  function clearPolygonSelection() {
-    points = [];
-    polygonComplete = false;
-    ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-    ctx.drawImage(image, 0, 0, imageCanvas.width, imageCanvas.height);
-  }
+  window.addEventListener('resize', resizeCanvas);
+
+  elements.deselectionBtn.addEventListener('click', () => {
+    if (!elements.deselectionBtn.classList.contains('disabled')) {
+      switchToolbar('selection');
+    }
+  });
+
+  elements.coloringBtn.addEventListener('click', () => {
+    if (!elements.coloringBtn.classList.contains('disabled')) {
+      switchToolbar('coloring');
+      detectDominantColor();
+    }
+  });
+
+  elements.uploadBtn.addEventListener('click', () => {
+    if (!elements.uploadBtn.classList.contains('disabled')) {
+      state.resetAction = 'upload';
+      showOverlay();
+    }
+  });
+
+  elements.confirmBtn.addEventListener('click', () => {
+    hideOverlay();
+    if (state.resetAction === 'reload') {
+      location.reload();
+    } else if (state.resetAction === 'upload') {
+      resetEditor();
+    }
+  });
+
+  elements.cancelBtn.addEventListener('click', hideOverlay);
+
+  elements.imageCanvas.addEventListener('click', e => {
+    if (state.polygonComplete) return;
+    const { x, y } = getMousePos(e);
+    state.points.push({ x, y });
+    drawPolygon();
+  });
+
+  elements.imageCanvas.addEventListener('mousedown', e => {
+    const { x, y } = getMousePos(e);
+    state.draggingPointIndex = state.points.findIndex(p => Math.hypot(p.x - x, p.y - y) < 5);
+  });
+
+  elements.imageCanvas.addEventListener('mousemove', e => {
+    if (state.draggingPointIndex !== null) {
+      const { x, y } = getMousePos(e);
+      state.points[state.draggingPointIndex] = { x, y };
+      drawPolygon();
+    }
+  });
+
+  elements.imageCanvas.addEventListener('mouseup', () => {
+    state.draggingPointIndex = null;
+  });
+
+  document.addEventListener('keydown', e => {
+    if (['Backspace', 'Delete'].includes(e.key)) {
+      state.points.pop();
+      drawPolygon();
+    }
+  });
+
+  const getMousePos = e => {
+    const rect = elements.imageCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  switchToolbar('upload');
 });

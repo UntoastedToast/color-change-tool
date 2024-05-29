@@ -36,13 +36,16 @@
       </a>
     </div>
 
-    <div id="upload-field" class="upload-field active">
+    <div id="upload-field" class="upload-field">
       <input type="file" id="image-upload" class="file-input">
       <div class="upload-message">
-        <p>Drag & Drop your image here or</p>
-        <button class="btn btn-default" id="browse-btn">Browse</button>
+        <p>Drag & Drop your image here</p>
+        <p>or</p>
+        <a class="btn btn-default" id="browse-btn">
+          <i class="fa-regular fa-folder-open"></i> Browse
+        </a>
       </div>
-    </div>
+    </div>    
 
     <div class="toolbar" id="selection-toolbar" style="display: none;">
       <a class="btn btn-default green-border" id="apply-selection">
@@ -72,6 +75,21 @@
     </div>
 
     <canvas id="image-canvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- Overlay Div -->
+  <div id="overlay" class="overlay">
+    <div class="overlay-content">
+      <h3>Warning</h3>
+        <p>Your previous edits will be lost. Do you want to continue?</p>
+        <p>Click Export in the top right corner to save your image.</p>
+      <a class="btn btn-default red-border" id="confirm-btn">
+        <i class="fa fa-fw fa-check"></i>Continue
+      </a>
+      <a class="btn btn-default cancel-btn" id="cancel-btn">
+        <i class="fa fa-fw fa-times"></i> Cancel
+      </a>
+    </div>
   </div>
 
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>

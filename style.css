@@ -11,7 +11,7 @@ body {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
-  -o-border-radius: 5px 0 0 0;
+  -o-border-radius: 5px;
 }
 
 .image-controls {
@@ -49,7 +49,8 @@ body {
 }
 
 .image-controls .btn-default.green-border,
-.toolbar .btn-default.green-border {
+.toolbar .btn-default.green-border,
+.overlay-content .btn-default.green-border {
   border-color: #4cae4c;
   color: #4cae4c;
 }
@@ -61,13 +62,18 @@ body {
 .toolbar .btn-default.green-border:hover,
 .toolbar .btn-default.green-border:focus,
 .toolbar .btn-default.green-border:active:hover,
-.toolbar .btn-default.green-border:active:focus {
+.toolbar .btn-default.green-border:active:focus,
+.overlay-content .btn-default.green-border:hover,
+.overlay-content .btn-default.green-border:focus,
+.overlay-content .btn-default.green-border:active:hover,
+.overlay-content .btn-default.green-border:active:focus {
   background: #4cae4c;
   color: #fff;
 }
 
 .image-controls .btn-default.red-border,
-.toolbar .btn-default.red-border {
+.toolbar .btn-default.red-border,
+.overlay-content .btn-default.red-border {
   border-color: #d43f3a;
   color: #d43f3a;
 }
@@ -79,7 +85,11 @@ body {
 .toolbar .btn-default.red-border:hover,
 .toolbar .btn-default.red-border:focus,
 .toolbar .btn-default.red-border:active:hover,
-.toolbar .btn-default.red-border:active:focus {
+.toolbar .btn-default.red-border:active:focus,
+.overlay-content .btn-default.red-border:hover,
+.overlay-content .btn-default.red-border:focus,
+.overlay-content .btn-default.red-border:active:hover,
+.overlay-content .btn-default.red-border:active:focus {
   background: #d43f3a;
   color: #fff;
 }
@@ -87,14 +97,18 @@ body {
 .image-controls .btn-default.red-border,
 .image-controls .btn-default.green-border,
 .toolbar .btn-default.red-border,
-.toolbar .btn-default.green-border {
+.toolbar .btn-default.green-border,
+.overlay-content .btn-default.red-border,
+.overlay-content .btn-default.green-border {
   margin-top: 12px;
 }
 
 .image-controls .btn-default.red-border i,
 .image-controls .btn-default.green-border i,
 .toolbar .btn-default.red-border i,
-.toolbar .btn-default.green-border i {
+.toolbar .btn-default.green-border i,
+.overlay-content .btn-default.red-border i,
+.overlay-content .btn-default.green-border i {
   font-size: initial;
 }
 
@@ -164,12 +178,17 @@ body {
   display: block;
   margin: 20px auto;
   border: 1px solid #ddd;
+  width: 100%; /* Maximale Breite 100% des Containers */
+  height: auto; /* Höhe automatisch proportional */
   max-width: 100%;
-  height: auto;
 }
 
+
 .upload-field {
-  border: 2px dashed #ccc;
+  border: 10px dashed #ccc;
+  border-style: dashed;
+  border-width: 2px;
+  border-color: #ccc;
   padding: 100px;
   text-align: center;
   margin: 20px auto;
@@ -179,7 +198,7 @@ body {
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
-}
+} 
 
 .upload-field.active {
   display: block;
@@ -191,10 +210,16 @@ body {
 
 .upload-field .upload-message {
   pointer-events: none;
+  font-size: 16px;
 }
 
 .upload-field .upload-message .btn {
   pointer-events: auto;
+}
+
+#browse-btn {
+  padding: 6px 20px;
+  font-size: 16px;
 }
 
 /* Style for Apply Color button */
@@ -220,4 +245,61 @@ body {
 
 .btn.active, .btn:active {
   box-shadow: none !important;
+}
+
+/* Overlay styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none;
+}
+
+.overlay-content {
+  background: #fff;
+  padding: 50px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.overlay-content p {
+  margin-bottom: 10px;
+  font-size: medium;
+}
+
+.overlay-content p:nth-child(3) {
+  opacity: 70%;
+  margin-bottom: 20px;
+  font-size: small;
+}
+
+.overlay-content h3 {
+  margin-top: 0 !important;
+  margin-bottom: 20px;
+}
+
+.overlay-content .btn {
+  margin: 0 10px;
+  transition: all 0.15s ease-in-out;
+}
+
+.overlay-content .cancel-btn {
+  border-color: #888;
+  color: #888;
+  margin-top: 12px;
+}
+
+.overlay-content .cancel-btn:hover,
+.overlay-content .cancel-btn:focus,
+.overlay-content .cancel-btn:active:hover,
+.overlay-content .cancel-btn:active:focus {
+  background: #888;
+  color: #fff;
 }
