@@ -31,7 +31,7 @@ window.onload = function() {
 
 // Event listener for "Yes" button
 confirmBtn.addEventListener('click', function() {
-    window.location.href = '/new/index.html';
+    window.location.href = './new/index.html';
 });
 
 // Event listener for "No" button
