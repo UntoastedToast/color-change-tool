@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Replace Color</title>
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/c99cea887b.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="image-controls">
+      <a class="btn btn-default red-border pull-left" title="Reset to original" id="reset-btn">
+        <i class="fa fa-fw fa-undo"></i> Reload Page
+      </a>
+
+      <a class="btn btn-default btn-effect" id="upload-btn">
+        <i class="fa-solid fa-upload"></i>
+        <span>Upload</span>
+      </a>
+
+      <a class="btn btn-default btn-effect disabled" id="deselection-btn">
+        <i class="fa-solid fa-crop-simple"></i>
+        <span>De-Selection</span>
+      </a>
+
+      <a class="btn btn-default btn-effect disabled" id="coloring-btn">
+        <i class="fa-solid fa-palette"></i>
+        <span>Coloring</span>
+      </a>
+
+      <a class="btn btn-default green-border pull-right disabled" title="Save image" id="save-btn">
+        <i class="fa-solid fa-file-arrow-down"></i> Export
+      </a>
+    </div>
+
+    <div id="upload-field" class="upload-field">
+      <input type="file" id="image-upload" class="file-input">
+      <div class="upload-message">
+        <p>Drag & Drop your image here</p>
+        <p>or</p>
+        <a class="btn btn-default" id="browse-btn">
+          <i class="fa-regular fa-folder-open"></i> Browse
+        </a>
+      </div>
+    </div>    
+
+    <div class="toolbar" id="selection-toolbar" style="display: none;">
+      <a class="btn btn-default green-border" id="apply-selection">
+        <i class="fa fa-fw fa-check"></i> Apply Selection
+      </a>
+      <a class="btn btn-default red-border" id="clear-selection">
+        <i class="fa-solid fa-eraser"></i> Clear Selection
+      </a>
+    </div>
+
+    <div class="toolbar" id="coloring-toolbar" style="display: none;">
+      <div class="color-picker-container">
+        <div class="color-picker-pair">
+          <label for="source-color">Originalfarbe</label>
+          <input type="color" id="source-color" value="#ff0000">
+        </div>
+        <div class="color-picker-pair">
+          <label for="target-color">Neue Farbe</label>
+          <input type="color" id="target-color" value="#00ff00">
+        </div>
+      </div>
+      <div class="color-apply-button">
+        <a class="btn btn-default btn-effect" id="apply-color">
+          <i class="fa-solid fa-fill-drip"></i> Apply Color
+        </a>
+      </div>
+    </div>
+
+    <canvas id="image-canvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- Overlay Div -->
+  <div id="overlay" class="overlay">
+    <div class="overlay-content">
+      <h3>Warning</h3>
+        <p>Your previous edits will be lost. Do you want to continue?</p>
+        <p>Click Export in the top right corner to save your image.</p>
+      <a class="btn btn-default red-border" id="confirm-btn">
+        <i class="fa fa-fw fa-check"></i>Continue
+      </a>
+      <a class="btn btn-default cancel-btn" id="cancel-btn">
+        <i class="fa fa-fw fa-times"></i> Cancel
+      </a>
+    </div>
+  </div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+  <script src="script.js"></script>
+</body>
+
+</html>

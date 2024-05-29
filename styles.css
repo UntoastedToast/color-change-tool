@@ -106,3 +106,61 @@ input[type="color"], input[type="range"] {
 .btn-export:hover {
     background-color: #388e3c; /* Dunkleres Grün */
 }
+
+/* Overlay styles */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    display: none; /* Verstecke das Overlay standardmäßig */
+  }
+  
+  .overlay-content {
+    background: #fff;
+    padding: 50px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .overlay-content p {
+    margin-bottom: 30px;
+    font-size: medium;
+  }
+  
+  .overlay-content p:nth-child(3) {
+    opacity: 70%;
+    margin-bottom: 20px;
+    font-size: small;
+  }
+  
+  .overlay-content h3 {
+    margin-top: 0 !important;
+    margin-bottom: 20px;
+  }
+  
+  .overlay-content .btn {
+    margin: 0 10px;
+    transition: all 0.15s ease-in-out;
+  }
+  
+  .overlay-content .cancel-btn {
+    border-color: #888;
+    color: #888;
+    margin-top: 12px;
+  }
+  
+  .overlay-content .cancel-btn:hover,
+  .overlay-content .cancel-btn:focus,
+  .overlay-content .cancel-btn:active:hover,
+  .overlay-content .cancel-btn:active:focus {
+    background: #888;
+    color: #fff;
+  }
+  

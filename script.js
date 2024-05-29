@@ -14,12 +14,30 @@ const backToPolygonButton = document.getElementById('back-to-polygon');
 const exportImageButton = document.getElementById('export-image');
 const polygonSection = document.getElementById('polygon-section');
 const colorSection = document.getElementById('color-section');
+const overlay = document.getElementById('overlay');
+const confirmBtn = document.getElementById('confirm-btn');
+const cancelBtn = document.getElementById('cancel-btn');
 
 let img = new Image();
 let imgFileName = "";
 let polygonPoints = [];
 let isDrawing = false;
 let selectedPointIndex = -1;
+
+// Show overlay on page load
+window.onload = function() {
+    overlay.style.display = 'flex';
+};
+
+// Event listener for "Yes" button
+confirmBtn.addEventListener('click', function() {
+    window.location.href = '/new/index.html';
+});
+
+// Event listener for "No" button
+cancelBtn.addEventListener('click', function() {
+    overlay.style.display = 'none';
+});
 
 colorToleranceInput.addEventListener('input', (e) => {
     toleranceValue.textContent = e.target.value;
