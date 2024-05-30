@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Cached DOM elements
   const elements = {
     uploadBtn: document.getElementById('upload-btn'),
     imageUploadInput: document.getElementById('image-upload'),
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     draggingPointIndex: null,
   };
 
+  // Utility functions
   const toggleButtons = (disabled, ...buttons) =>
     buttons.forEach(btn => btn.classList.toggle('disabled', disabled));
 
@@ -39,14 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     Object.keys(elements).forEach(key => elements[key].classList && elements[key].classList.remove('active'));
     if (elements[`${mode}Btn`]) elements[`${mode}Btn`].classList.add('active');
-    if (mode === 'selection') elements.deselectionBtn.classList.add('active'); // Ensure De-Selection button is active
+    if (mode === 'selection') elements.deselectionBtn.classList.add('active');
   };
 
   const resetEditor = () => {
-    state.points = [];
-    state.polygonComplete = false;
-    state.originalFileName = '';
-    state.originalImageData = null;
+    state = { ...state, points: [], polygonComplete: false, originalFileName: '', originalImageData: null };
     elements.ctx.clearRect(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
     showUploadField();
     toggleButtons(true, elements.deselectionBtn, elements.coloringBtn, elements.saveBtn);
@@ -61,24 +60,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const handleImageUpload = file => {
-    if (file) {
-      state.originalFileName = file.name.split('.')[0];
-      const reader = new FileReader();
-      reader.onload = event => {
-        state.image.src = event.target.result;
-        state.image.onload = () => {
-          resizeCanvas();
-          elements.ctx.drawImage(state.image, 0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
-          state.originalImageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
-          toggleButtons(false, elements.deselectionBtn, elements.coloringBtn, elements.saveBtn);
-          switchToolbar('selection');
-          elements.uploadField.classList.remove('active');
-          elements.uploadField.style.display = 'none';
-          elements.imageCanvas.style.display = 'block';
-        };
+    if (!file) return;
+    state.originalFileName = file.name.split('.')[0];
+    const reader = new FileReader();
+    reader.onload = event => {
+      state.image.src = event.target.result;
+      state.image.onload = () => {
+        resizeCanvas();
+        elements.ctx.drawImage(state.image, 0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+        state.originalImageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
+        toggleButtons(false, elements.deselectionBtn, elements.coloringBtn, elements.saveBtn);
+        switchToolbar('selection');
+        elements.uploadField.classList.remove('active');
+        elements.uploadField.style.display = 'none';
+        elements.imageCanvas.style.display = 'block';
       };
-      reader.readAsDataURL(file);
-    }
+    };
+    reader.readAsDataURL(file);
   };
 
   const resizeCanvas = () => {
@@ -91,27 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Add drag-and-drop functionality
   const handleDragOver = e => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
     elements.uploadField.classList.add('drag-over');
   };
 
-  const handleDragLeave = e => {
-    elements.uploadField.classList.remove('drag-over');
-  };
+  const handleDragLeave = e => elements.uploadField.classList.remove('drag-over');
 
   const handleDrop = e => {
     e.preventDefault();
     elements.uploadField.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    handleImageUpload(file);
+    handleImageUpload(e.dataTransfer.files[0]);
   };
-
-  elements.uploadField.addEventListener('dragover', handleDragOver);
-  elements.uploadField.addEventListener('dragleave', handleDragLeave);
-  elements.uploadField.addEventListener('drop', handleDrop);
 
   const applyColorChange = () => {
     elements.ctx.putImageData(state.originalImageData, 0, 0);
@@ -140,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const excludeColors = new Set(['#808080', '#FFFFFF']);
     const step = Math.max(1, Math.floor((elements.imageCanvas.width * elements.imageCanvas.height) / 10000));
 
-    for (let i = 0; data.length > i; i += 4 * step) {
+    for (let i = 0; i < data.length; i += 4 * step) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
@@ -209,109 +199,122 @@ document.addEventListener('DOMContentLoaded', () => {
   const showOverlay = () => elements.overlay.style.display = 'flex';
   const hideOverlay = () => elements.overlay.style.display = 'none';
 
-  elements.resetBtn.addEventListener('click', () => {
-    state.resetAction = 'reload';
-    showOverlay();
-  });
-
-  elements.browseBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    elements.imageUploadInput.click();
-  });
-
-  elements.imageUploadInput.addEventListener('change', (e) => handleImageUpload(e.target.files[0]));
-
-  elements.applySelectionBtn.addEventListener('click', () => {
-    if (state.points.length > 2) {
-      state.polygonComplete = true;
-      switchToolbar('coloring');
-      detectDominantColor();
-    }
-  });
-
-  elements.applyColorBtn.addEventListener('click', applyColorChange);
-
-  elements.saveBtn.addEventListener('click', () => {
-    const link = document.createElement('a');
-    link.download = `${state.originalFileName}_${elements.targetColorInput.value}.jpg`;
-    link.href = elements.imageCanvas.toDataURL('image/jpeg');
-    link.click();
-  });
-
-  elements.clearSelectionBtn.addEventListener('click', () => {
-    state.points = [];
-    state.polygonComplete = false;
-    elements.ctx.putImageData(state.originalImageData, 0, 0);
-  });
-
-  window.addEventListener('resize', resizeCanvas);
-
-  elements.deselectionBtn.addEventListener('click', () => {
-    if (!elements.deselectionBtn.classList.contains('disabled')) {
-      switchToolbar('selection');
-    }
-  });
-
-  elements.coloringBtn.addEventListener('click', () => {
-    if (!elements.coloringBtn.classList.contains('disabled')) {
-      switchToolbar('coloring');
-      detectDominantColor();
-    }
-  });
-
-  elements.uploadBtn.addEventListener('click', () => {
-    if (!elements.uploadBtn.classList.contains('disabled')) {
-      state.resetAction = 'upload';
+  // Event Listeners
+  const setupEventListeners = () => {
+    elements.resetBtn.addEventListener('click', () => {
+      state.resetAction = 'reload';
       showOverlay();
-    }
-  });
+    });
 
-  elements.confirmBtn.addEventListener('click', () => {
-    hideOverlay();
-    if (state.resetAction === 'reload') {
-      location.reload();
-    } else if (state.resetAction === 'upload') {
-      resetEditor();
-    }
-  });
+    elements.browseBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      elements.imageUploadInput.click();
+    });
 
-  elements.cancelBtn.addEventListener('click', hideOverlay);
+    elements.imageUploadInput.addEventListener('change', e => handleImageUpload(e.target.files[0]));
 
-  elements.imageCanvas.addEventListener('click', e => {
-    if (state.polygonComplete) return;
-    const { x, y } = getMousePos(e);
-    state.points.push({ x, y });
-    drawPolygon();
-  });
+    elements.applySelectionBtn.addEventListener('click', () => {
+      if (state.points.length > 2) {
+        state.polygonComplete = true;
+        switchToolbar('coloring');
+        detectDominantColor();
+      }
+    });
 
-  elements.imageCanvas.addEventListener('mousedown', e => {
-    const { x, y } = getMousePos(e);
-    state.draggingPointIndex = state.points.findIndex(p => Math.hypot(p.x - x, p.y - y) < 5);
-  });
+    elements.applyColorBtn.addEventListener('click', applyColorChange);
 
-  elements.imageCanvas.addEventListener('mousemove', e => {
-    if (state.draggingPointIndex !== null) {
+    elements.saveBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `${state.originalFileName}_${elements.targetColorInput.value}.jpg`;
+      link.href = elements.imageCanvas.toDataURL('image/jpeg');
+      link.click();
+    });
+
+    elements.clearSelectionBtn.addEventListener('click', () => {
+      state.points = [];
+      state.polygonComplete = false;
+      elements.ctx.putImageData(state.originalImageData, 0, 0);
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    elements.deselectionBtn.addEventListener('click', () => {
+      if (!elements.deselectionBtn.classList.contains('disabled')) {
+        switchToolbar('selection');
+      }
+    });
+
+    elements.coloringBtn.addEventListener('click', () => {
+      if (!elements.coloringBtn.classList.contains('disabled')) {
+        switchToolbar('coloring');
+        detectDominantColor();
+      }
+    });
+
+    elements.uploadBtn.addEventListener('click', () => {
+      if (!elements.uploadBtn.classList.contains('disabled')) {
+        state.resetAction = 'upload';
+        showOverlay();
+      }
+    });
+
+    elements.confirmBtn.addEventListener('click', () => {
+      hideOverlay();
+      if (state.resetAction === 'reload') {
+        location.reload();
+      } else if (state.resetAction === 'upload') {
+        resetEditor();
+      }
+    });
+
+    elements.cancelBtn.addEventListener('click', hideOverlay);
+
+    elements.imageCanvas.addEventListener('click', e => {
+      if (state.polygonComplete) return;
       const { x, y } = getMousePos(e);
-      state.points[state.draggingPointIndex] = { x, y };
+      state.points.push({ x, y });
       drawPolygon();
-    }
-  });
+    });
 
-  elements.imageCanvas.addEventListener('mouseup', () => {
-    state.draggingPointIndex = null;
-  });
+    elements.imageCanvas.addEventListener('mousedown', e => {
+      const { x, y } = getMousePos(e);
+      state.draggingPointIndex = state.points.findIndex(p => Math.hypot(p.x - x, p.y - y) < 5);
+    });
 
-  document.addEventListener('keydown', e => {
-    if (['Backspace', 'Delete'].includes(e.key)) {
-      state.points.pop();
-      drawPolygon();
-    }
-  });
+    elements.imageCanvas.addEventListener('mousemove', e => {
+      if (state.draggingPointIndex !== null) {
+        const { x, y } = getMousePos(e);
+        state.points[state.draggingPointIndex] = { x, y };
+        drawPolygon();
+      }
+    });
+
+    elements.imageCanvas.addEventListener('mouseup', () => {
+      state.draggingPointIndex = null;
+    });
+
+    document.addEventListener('keydown', e => {
+      if (['Backspace', 'Delete'].includes(e.key)) {
+        state.points.pop();
+        drawPolygon();
+      }
+    });
+
+    elements.uploadField.addEventListener('dragover', handleDragOver);
+    elements.uploadField.addEventListener('dragleave', handleDragLeave);
+    elements.uploadField.addEventListener('drop', handleDrop);
+  };
 
   const getMousePos = e => {
     const rect = elements.imageCanvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
-  switchToolbar('upload');
+  // Initialize the editor
+  const init = () => {
+    switchToolbar('upload');
+    setupEventListeners();
+  };
+
+  init();
 });
