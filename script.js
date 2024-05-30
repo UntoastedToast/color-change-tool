@@ -60,8 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.imageUploadInput.value = '';
   };
 
-  const handleImageUpload = e => {
-    const file = e.target.files[0];
+  const handleImageUpload = file => {
     if (file) {
       state.originalFileName = file.name.split('.')[0];
       const reader = new FileReader();
@@ -92,6 +91,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Add drag-and-drop functionality
+  const handleDragOver = e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    elements.uploadField.classList.add('drag-over');
+  };
+
+  const handleDragLeave = e => {
+    elements.uploadField.classList.remove('drag-over');
+  };
+
+  const handleDrop = e => {
+    e.preventDefault();
+    elements.uploadField.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    handleImageUpload(file);
+  };
+
+  elements.uploadField.addEventListener('dragover', handleDragOver);
+  elements.uploadField.addEventListener('dragleave', handleDragLeave);
+  elements.uploadField.addEventListener('drop', handleDrop);
+
   const applyColorChange = () => {
     elements.ctx.putImageData(state.originalImageData, 0, 0);
     const imageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
@@ -119,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const excludeColors = new Set(['#808080', '#FFFFFF']);
     const step = Math.max(1, Math.floor((elements.imageCanvas.width * elements.imageCanvas.height) / 10000));
 
-    for (let i = 0; i < data.length; i += 4 * step) {
+    for (let i = 0; data.length > i; i += 4 * step) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
@@ -198,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.imageUploadInput.click();
   });
 
-  elements.imageUploadInput.addEventListener('change', handleImageUpload);
+  elements.imageUploadInput.addEventListener('change', (e) => handleImageUpload(e.target.files[0]));
 
   elements.applySelectionBtn.addEventListener('click', () => {
     if (state.points.length > 2) {
