@@ -201,8 +201,8 @@ body {
   display: block;
   margin: 20px auto;
   border: 1px solid #ddd;
-  width: 100%; /* Maximale Breite 100% des Containers */
-  height: auto; /* Höhe automatisch proportional */
+  width: 100%; /* Max width 100% of container */
+  height: auto; /* Height auto proportional */
   max-width: 100%;
 }
 
