@@ -138,22 +138,45 @@ body {
   margin-top: 0;
 }
 
+.color-picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto; /* Centers the wrapper */
+}
+
 .color-picker-container {
   display: flex;
   justify-content: center;
+  width: 100%;
   margin-bottom: 20px;
 }
 
 .color-picker-pair {
-  text-align: left;
+  flex: 1;
   margin-right: 10px;
   margin-left: 10px;
 }
 
-.color-picker-pair label,
-.color-picker-pair input {
+.color-picker-pair label, .tolerance-slider-container label {
   display: block;
-  width: 100px;
+  margin-bottom: 10px;
+}
+
+.color-picker-pair input, .tolerance-slider-container input {
+  width: 100%;
+}
+
+.tolerance-slider-container, .color-apply-button {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.color-apply-button a {
+  width: 100%;
+  text-align: center;
 }
 
 .color-apply-button {
@@ -162,7 +185,7 @@ body {
 }
 
 .color-apply-button .btn-effect {
-  width: calc(2 * 100px + 20px); /* Width of both color-picker-pairs plus the margin between them */
+  width: 100%;
 }
 
 .toolbar .btn {
@@ -182,7 +205,6 @@ body {
   height: auto; /* Höhe automatisch proportional */
   max-width: 100%;
 }
-
 
 .upload-field {
   border: 10px dashed #ccc;

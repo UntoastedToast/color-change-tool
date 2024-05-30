@@ -57,23 +57,53 @@
     </div>
 
     <div class="toolbar" id="coloring-toolbar" style="display: none;">
-      <div class="color-picker-container">
-        <div class="color-picker-pair">
-          <label for="source-color">Originalfarbe</label>
-          <input type="color" id="source-color" value="#ff0000">
+      <div class="color-picker-wrapper">
+        <div class="color-picker-container">
+          <div class="color-picker-pair">
+            <label for="source-color">Originalfarbe</label>
+            <input type="color" id="source-color" value="#ff0000">
+          </div>
+          <div class="color-picker-pair">
+            <label for="target-color">Neue Farbe</label>
+            <input type="color" id="target-color" value="#00ff00">
+          </div>
         </div>
-        <div class="color-picker-pair">
-          <label for="target-color">Neue Farbe</label>
-          <input type="color" id="target-color" value="#00ff00">
+        <div class="tolerance-slider-container">
+          <label for="tolerance-slider">Toleranz: <span id="tolerance-value">30</span></label>
+          <input type="range" id="tolerance-slider" min="0" max="80" value="30">
         </div>
-      </div>
-      <div class="color-apply-button">
-        <a class="btn btn-default btn-effect" id="apply-color">
-          <i class="fa-solid fa-fill-drip"></i> Apply Color
-        </a>
+        <div class="color-apply-button">
+          <a class="btn btn-default btn-effect" id="apply-color">
+            <i class="fa-solid fa-fill-drip"></i> Apply Color
+          </a>
+        </div>
       </div>
     </div>
 
+    <div class="toolbar" id="coloring-toolbar" style="display: none;">
+      <div class="color-picker-wrapper">
+        <div class="color-picker-container">
+          <div class="color-picker-pair">
+            <label for="source-color">Original color</label>
+            <input type="color" id="source-color" value="#ff0000">
+          </div>
+          <div class="color-picker-pair">
+            <label for="target-color">New color</label>
+            <input type="color" id="target-color" value="#00ff00">
+          </div>
+        </div>
+        <div class="tolerance-slider-container">
+          <label for="tolerance-slider">Tolerance: <span id="tolerance-value">30</span></label>
+          <input type="range" id="tolerance-slider" min="0" max="80" value="30">
+        </div>
+        <div class="color-apply-button">
+          <a class="btn btn-default btn-effect" id="apply-color">
+            <i class="fa-solid fa-fill-drip"></i> Apply Color
+          </a>
+        </div>
+      </div>
+    </div>    
+        
     <canvas id="image-canvas" style="display:none;"></canvas>
   </div>
 

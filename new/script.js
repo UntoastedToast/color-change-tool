@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     applyColorBtn: document.getElementById('apply-color'),
     sourceColorInput: document.getElementById('source-color'),
     targetColorInput: document.getElementById('target-color'),
+    toleranceSlider: document.getElementById('tolerance-slider'),
+    toleranceValue: document.getElementById('tolerance-value'),
     clearSelectionBtn: document.getElementById('clear-selection'),
     resetBtn: document.getElementById('reset-btn'),
     overlay: document.getElementById('overlay'),
@@ -118,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageData = elements.ctx.getImageData(0, 0, elements.imageCanvas.width, elements.imageCanvas.height);
     const sourceColor = hexToRgb(elements.sourceColorInput.value);
     const targetColor = hexToRgb(elements.targetColorInput.value);
-    const tolerance = 50;
+    const tolerance = parseInt(elements.toleranceSlider.value); // Update this line
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
@@ -323,6 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.uploadField.addEventListener('dragover', handleDragOver);
     elements.uploadField.addEventListener('dragleave', handleDragLeave);
     elements.uploadField.addEventListener('drop', handleDrop);
+
+    // Event listener for tolerance slider to update displayed value
+    elements.toleranceSlider.addEventListener('input', () => {
+      elements.toleranceValue.textContent = elements.toleranceSlider.value;
+    });
   };
 
   // Helper function to get the mouse position on the canvas
